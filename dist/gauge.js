@@ -671,7 +671,7 @@
 			
             rotationAngle = this.getAngle(value.value) - 3 * Math.PI / 2;
             this.ctx.rotate(rotationAngle);
-						this.ctx.fillText(value.label, 0, -radius - this.lineWidth / 2);		
+            this.ctx.fillText(value.label, 0, -radius - this.lineWidth / 2);
             this.ctx.rotate(-rotationAngle);
           }
         } else {
