@@ -645,6 +645,47 @@
       return this.ctx.restore();
     };
 
+    Gauge.prototype.renderStaticTextLabels = function(staticTextLabels, w, h, radius) {
+      var font, fontsize, j, len, match, re, ref, rest, rotationAngle, value;
+      this.ctx.save();
+      this.ctx.translate(w, h);
+      font = staticTextLabels.font || "10px Times";
+      re = /\d+\.?\d?/;
+      match = font.match(re)[0];
+      rest = font.slice(match.length);
+      fontsize = parseFloat(match) * this.displayScale;
+      this.ctx.font = fontsize + rest;
+      this.ctx.fillStyle = staticTextLabels.color || "#000000";
+      this.ctx.textBaseline = "bottom";
+      this.ctx.textAlign = "center";
+      ref = staticTextLabels.labels;
+      for (j = 0, len = ref.length; j < len; j++) {
+        value = ref[j];
+        if (value.label !== void 0) {
+          if ((!this.options.limitMin || value.value >= this.minValue) && (!this.options.limitMax || value.value <= this.maxValue)) {
+            font = value.font || staticTextLabels.font;
+            match = font.match(re)[0];
+            rest = font.slice(match.length);
+            fontsize = parseFloat(match) * this.displayScale;
+            this.ctx.font = font.replace(match, fontsize);
+			
+            rotationAngle = this.getAngle(value.value) - 3 * Math.PI / 2;
+            this.ctx.rotate(rotationAngle);
+						this.ctx.fillText(value.label, 0, -radius - this.lineWidth / 2);		
+            this.ctx.rotate(-rotationAngle);
+          }
+        } else {
+          if ((!this.options.limitMin || value.value >= this.minValue) && (!this.options.limitMax || value.value <= this.maxValue)) {
+            rotationAngle = this.getAngle(value.value) - 3 * Math.PI / 2;
+            this.ctx.rotate(rotationAngle);
+            this.ctx.fillText(value.label, 0, -radius - this.lineWidth / 2);
+            this.ctx.rotate(-rotationAngle);
+          }
+        }
+      }
+      return this.ctx.restore();
+    };
+
     Gauge.prototype.renderTicks = function(ticksOptions, w, h, radius) {
       var currentDivision, currentSubDivision, divColor, divLength, divWidth, divisionCount, j, lineWidth, range, rangeDivisions, ref, results, scaleMutate, st, subColor, subDivisions, subLength, subWidth, subdivisionCount, t, tmpRadius;
       if (ticksOptions !== {}) {
@@ -709,6 +750,9 @@
       radius = this.radius * this.options.radiusScale;
       if (this.options.staticLabels) {
         this.renderStaticLabels(this.options.staticLabels, w, h, radius);
+      }
+      if (this.options.staticTextLabels) {
+        this.renderStaticTextLabels(this.options.staticTextLabels, w, h, radius);
       }
       if (this.options.staticZones) {
         this.ctx.save();
